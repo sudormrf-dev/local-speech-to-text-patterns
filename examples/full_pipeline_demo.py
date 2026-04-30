@@ -90,7 +90,9 @@ class PipelineRun:
     @property
     def ttfb_ms(self) -> float:
         """Time-to-first-byte: latency through VAD + STT stages."""
-        vad_and_stt = [t for t in self.stage_timers if t.name in ("VAD Detection", "STT Transcription")]
+        vad_and_stt = [
+            t for t in self.stage_timers if t.name in ("VAD Detection", "STT Transcription")
+        ]
         return sum(t.elapsed_ms for t in vad_and_stt if t.elapsed_ms >= 0)
 
 
@@ -265,7 +267,10 @@ def stage_tts_synthesis(response_text: str, synth: SpeechSynthesizer) -> TTSResu
 # ---------------------------------------------------------------------------
 
 _DEMO_SCENARIOS: list[dict[str, str]] = [
-    {"label": "Wake word + weather query", "utterance": "Hey assistant, what's the weather like today?"},
+    {
+        "label": "Wake word + weather query",
+        "utterance": "Hey assistant, what's the weather like today?",
+    },
     {"label": "Simple greeting", "utterance": "Hello there!"},
     {"label": "Help request", "utterance": "Can you help me with something?"},
     {"label": "Time query", "utterance": "What time is it right now?"},
@@ -307,13 +312,15 @@ def run_pipeline(
     # Stage 1: VAD segmentation
     t1 = StageTimer("VAD Detection")
     with t1:
-        segments = stage_vad_segmentation(audio_bytes, vad_engine)
+        stage_vad_segmentation(audio_bytes, vad_engine)
     run.stage_timers.append(t1)
 
     # Stage 2: STT transcription
     t2 = StageTimer("STT Transcription")
     with t2:
-        stt_result = stage_stt_transcription(audio_bytes, whisper, stt_config, scenario["utterance"])
+        stt_result = stage_stt_transcription(
+            audio_bytes, whisper, stt_config, scenario["utterance"]
+        )
     run.stage_timers.append(t2)
 
     run.transcript = stt_result.text
@@ -347,7 +354,7 @@ def print_run_summary(scenario: dict[str, str], run: PipelineRun) -> None:
     """
     print(f"\n{'=' * 62}")
     print(f"  Scenario : {scenario['label']}")
-    print(f"  Utterance: \"{scenario['utterance']}\"")
+    print(f'  Utterance: "{scenario["utterance"]}"')
     print(f"{'=' * 62}")
     print(f"  {'Stage':<30} {'Latency':>10}")
     print(f"  {'-' * 44}")
@@ -357,8 +364,8 @@ def print_run_summary(scenario: dict[str, str], run: PipelineRun) -> None:
     print(f"  {'TOTAL':30s} {run.total_ms:7.1f} ms")
     print(f"  {'TTFB (VAD+STT)':30s} {run.ttfb_ms:7.1f} ms")
     print()
-    print(f"  Transcript : \"{run.transcript}\"")
-    print(f"  Response   : \"{run.response}\"")
+    print(f'  Transcript : "{run.transcript}"')
+    print(f'  Response   : "{run.response}"')
     print(f"  TTS audio  : {run.tts_duration_s:.2f}s estimated")
     print(f"  Quality    : {run.quality_score:.2%}")
 

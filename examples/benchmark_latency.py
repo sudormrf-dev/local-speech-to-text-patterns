@@ -384,7 +384,9 @@ def main() -> None:
     """Run all latency benchmarks and print formatted reports."""
     print("\n" + "=" * 80)
     print("  Latency Benchmark — Local STT/TTS Pipeline")
-    print(f"  Audio duration: {_AUDIO_DURATION_S}s | Iterations: {_BENCH_ITERS} (+ {_WARMUP_ITERS} warmup)")
+    print(
+        f"  Audio duration: {_AUDIO_DURATION_S}s | Iterations: {_BENCH_ITERS} (+ {_WARMUP_ITERS} warmup)"
+    )
     print("=" * 80)
 
     print("\n[1/2] Running quantization comparison ...")

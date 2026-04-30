@@ -16,7 +16,7 @@ Usage::
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from patterns.kokoro_tts import KokoroConfig, KokoroVoice, SpeechSynthesizer
 from patterns.silero_vad import VadConfig, VadEngine
@@ -66,14 +66,20 @@ class STTModelEntry:
 
 # Reference data derived from faster-whisper published benchmarks
 _STT_ENTRIES: list[STTModelEntry] = [
-    STTModelEntry("tiny",   ComputeType.INT8,    wer_percent=5.6,  rtf=0.06, vram_mb=75,   params_m=39),
-    STTModelEntry("base",   ComputeType.INT8,    wer_percent=4.2,  rtf=0.12, vram_mb=145,  params_m=74),
-    STTModelEntry("small",  ComputeType.INT8,    wer_percent=3.1,  rtf=0.30, vram_mb=466,  params_m=244),
-    STTModelEntry("medium", ComputeType.INT8,    wer_percent=2.7,  rtf=0.72, vram_mb=1500, params_m=769),
-    STTModelEntry("tiny",   ComputeType.FLOAT32, wer_percent=5.6,  rtf=0.23, vram_mb=155,  params_m=39),
-    STTModelEntry("base",   ComputeType.FLOAT32, wer_percent=4.2,  rtf=0.46, vram_mb=290,  params_m=74),
-    STTModelEntry("small",  ComputeType.FLOAT32, wer_percent=3.1,  rtf=1.14, vram_mb=932,  params_m=244),
-    STTModelEntry("medium", ComputeType.FLOAT32, wer_percent=2.7,  rtf=2.88, vram_mb=3000, params_m=769),
+    STTModelEntry("tiny", ComputeType.INT8, wer_percent=5.6, rtf=0.06, vram_mb=75, params_m=39),
+    STTModelEntry("base", ComputeType.INT8, wer_percent=4.2, rtf=0.12, vram_mb=145, params_m=74),
+    STTModelEntry("small", ComputeType.INT8, wer_percent=3.1, rtf=0.30, vram_mb=466, params_m=244),
+    STTModelEntry(
+        "medium", ComputeType.INT8, wer_percent=2.7, rtf=0.72, vram_mb=1500, params_m=769
+    ),
+    STTModelEntry("tiny", ComputeType.FLOAT32, wer_percent=5.6, rtf=0.23, vram_mb=155, params_m=39),
+    STTModelEntry("base", ComputeType.FLOAT32, wer_percent=4.2, rtf=0.46, vram_mb=290, params_m=74),
+    STTModelEntry(
+        "small", ComputeType.FLOAT32, wer_percent=3.1, rtf=1.14, vram_mb=932, params_m=244
+    ),
+    STTModelEntry(
+        "medium", ComputeType.FLOAT32, wer_percent=2.7, rtf=2.88, vram_mb=3000, params_m=769
+    ),
 ]
 
 
@@ -85,7 +91,9 @@ def run_stt_comparison() -> list[STTModelEntry]:
     """
     enriched: list[STTModelEntry] = []
     for entry in _STT_ENTRIES:
-        model = WhisperModel(model_size=entry.model_size, device="cpu", compute_type=entry.compute_type)
+        model = WhisperModel(
+            model_size=entry.model_size, device="cpu", compute_type=entry.compute_type
+        )
         # Cross-check our reference VRAM vs the pattern's own estimate
         pattern_vram = model.estimated_vram_mb()
         # Use max of reference and pattern estimate for a conservative figure
@@ -155,7 +163,7 @@ def run_tts_comparison() -> list[TTSModelEntry]:
 
     kokoro_voices = [
         (KokoroVoice.AF_HEART, 0.92, 4.3),
-        (KokoroVoice.BF_EMMA,  0.89, 4.2),
+        (KokoroVoice.BF_EMMA, 0.89, 4.2),
         (KokoroVoice.AM_MICHAEL, 0.87, 4.1),
     ]
     for voice, rtf, mos in kokoro_voices:
@@ -176,8 +184,8 @@ def run_tts_comparison() -> list[TTSModelEntry]:
 
     # Piper ONNX reference entries (no Python class — simulated directly)
     piper_voices = [
-        ("en_US-lessac-medium",  1.15, 3.8, 130),
-        ("en_GB-alba-medium",    1.08, 3.7, 110),
+        ("en_US-lessac-medium", 1.15, 3.8, 130),
+        ("en_GB-alba-medium", 1.08, 3.7, 110),
     ]
     for voice_id, rtf, mos, first_chunk in piper_voices:
         entries.append(
@@ -389,7 +397,9 @@ def main() -> None:
 
     print("\n### Recommendations\n")
     print(f"  STT: {best_stt.label}  — WER {best_stt.wer_percent:.1f}%, RTF {best_stt.rtf:.2f}")
-    print(f"  TTS: {best_tts.label}  — MOS {best_tts.quality_mos:.2f}, 1st chunk {best_tts.latency_first_chunk_ms:.0f} ms")
+    print(
+        f"  TTS: {best_tts.label}  — MOS {best_tts.quality_mos:.2f}, 1st chunk {best_tts.latency_first_chunk_ms:.0f} ms"
+    )
     print(f"  VAD: {best_vad.label}  — F1 {best_vad.f1:.3f}, latency {best_vad.latency_ms:.1f} ms")
     print()
 
