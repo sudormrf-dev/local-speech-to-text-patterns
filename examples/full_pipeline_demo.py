@@ -53,7 +53,7 @@ class StageTimer:
     name: str
     elapsed_ms: float = -1.0
 
-    def __enter__(self) -> "StageTimer":
+    def __enter__(self) -> StageTimer:
         self._start = time.perf_counter()
         return self
 
@@ -302,7 +302,7 @@ def run_pipeline(
     # Stage 0: Silence / activity detection
     t0 = StageTimer("Silence Detection")
     with t0:
-        has_speech, speech_ratio = stage_silence_detection(audio_bytes, vad_engine)
+        has_speech, _speech_ratio = stage_silence_detection(audio_bytes, vad_engine)
     run.stage_timers.append(t0)
 
     if not has_speech:
